@@ -4,8 +4,8 @@ go 1.23.2
 
 require (
 	github.com/gin-gonic/gin v1.10.1
-	github.com/juggleim/jugglechat-server v1.1.19
 	github.com/juggleim/imserver-sdk-go v1.0.15
+	github.com/juggleim/jugglechat-server v1.1.19
 )
 
 require (

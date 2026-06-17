@@ -13,7 +13,7 @@ import (
 	jchatModels "github.com/juggleim/jugglechat-server/storages/models"
 )
 
-func Route(eng *gin.Engine, prefix string) *gin.RouterGroup {
+func Route(group *gin.RouterGroup) {
 	//registe user register event
 	events.RegisteUserRegisteEvent(func(appkey string, user jchatModels.User) {
 		appinfo, exist := appinfos.GetAppInfo(appkey)
@@ -23,23 +23,26 @@ func Route(eng *gin.Engine, prefix string) *gin.RouterGroup {
 				openAssistant := String2Bool(objStr)
 				if openAssistant {
 					//register assistant
+					assistantId := "assistant_" + user.UserId
 					sdk := imsdk.GetImSdk(appkey)
 					sdk.RegisterBot(juggleimsdk.BotInfo{
-						BotId:    "assistant_" + user.UserId,
+						BotId:    assistantId,
 						Nickname: user.Nickname + "'s Assistant",
 						Portrait: user.UserPortrait,
 						BotConf: &juggleimsdk.BotConf{
-							Url: configures.Config.CallbackUrl + callbackrouters.AssistantUrlPrefix + "/msgcallback",
+							Url: configures.Config.CallbackBaseUrl + "/" + callbackrouters.AssistantUrlPrefix + "/msgcallback",
 						},
+					})
+					sdk.SendPrivateMsg(juggleimsdk.Message{
+						SenderId:   assistantId,
+						TargetId:   user.UserId,
+						MsgType:    "jg:text",
+						MsgContent: `{"content":"hello"}`,
 					})
 				}
 			}
 		}
 	})
-
-	group := eng.Group("/" + prefix)
-
-	return group
 }
 
 func String2Bool(str string) bool {
